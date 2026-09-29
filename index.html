@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#130e1b">
+  <meta name="description" content="Teste local da entrada de microfone USB no navegador. O áudio não é gravado nem enviado.">
+  <title>Teste de áudio USB — Karaokeke</title>
+  <style>
+    :root{color-scheme:dark;--bg:#100d16;--panel:#211a2b;--line:#40334e;--pink:#ff5b9e;--text:#f8f3fc;--muted:#c2b8cb;--gold:#ffd479}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#302039 0,#100d16 62%);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif;display:grid;place-items:center;padding:20px}
+    main{width:min(100%,680px);border:1px solid var(--line);border-radius:22px;background:rgba(24,18,33,.94);box-shadow:0 24px 80px #0008;padding:clamp(20px,5vw,38px)}
+    .brand{font-weight:850;letter-spacing:-1px;font-size:17px}.brand span{color:var(--pink)}
+    h1{font-size:clamp(27px,6vw,42px);line-height:1.08;letter-spacing:-1.4px;margin:28px 0 10px}
+    p{line-height:1.55;color:var(--muted)}
+    .intro{margin:0 0 22px}
+    .notice{padding:13px 14px;border-radius:12px;background:#30263a;border:1px solid #50405e;color:#e9ddf2;font-size:14px;line-height:1.5;margin:16px 0}
+    .notice.warn{background:#3b2d1a;border-color:#70572d;color:#ffdfa1}
+    .notice.good{background:#173429;border-color:#2d624a;color:#c0f1d6}
+    label{display:block;font-size:13px;font-weight:700;margin:17px 0 8px}
+    select{width:100%;background:#110e17;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:14px;font-size:15px;min-height:48px}
+    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    button{min-height:48px;border:0;border-radius:12px;padding:12px 18px;font-weight:750;font-size:15px;cursor:pointer}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .primary{background:var(--pink);color:#230b17;flex:1}
+    .secondary{background:#342a40;border:1px solid #51425f;color:var(--text)}
+    .meter-card{margin-top:22px;padding:18px;border:1px solid var(--line);border-radius:15px;background:#17121f}
+    .meter-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:11px;font-weight:700}
+    #levelText{font-variant-numeric:tabular-nums;color:var(--gold);font-size:14px}
+    .meter{height:24px;border-radius:999px;overflow:hidden;background:#09070e;border:1px solid #4b4056}
+    .meter-fill{height:100%;width:0;background:linear-gradient(90deg,#55d69e 0%,#ffe16b 72%,#ff5b5b 100%);transition:width .08s linear}
+    .hint{font-size:13px;margin:12px 0 0}
+    .privacy{border-top:1px solid var(--line);padding-top:15px;margin-top:22px;font-size:12px}
+    .small{font-size:12px;color:#a99db5}
+    @media(max-width:480px){body{padding:12px}main{border-radius:17px}.buttons{display:grid}.primary{width:100%}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">karaoke<span>ke</span> · diagnóstico USB</div>
+    <h1>Teste de entrada do microfone</h1>
+    <p class="intro">Veja se o navegador deste aparelho recebe o áudio da TEYUN Q12. Ative o Direct Monitor se quiser ouvir sua voz pela caixa; este teste mede a entrada USB separadamente.</p>
+    <div id="status" class="notice" role="status">Toque em “Iniciar teste” e permita o acesso ao microfone quando o navegador perguntar.</div>
+    <label for="inputs">Entrada de áudio</label>
+    <select id="inputs" aria-label="Escolher entrada de áudio"><option value="">Entrada padrão do aparelho</option></select>
+    <div class="buttons">
+      <button id="start" class="primary">Iniciar teste</button>
+      <button id="apply" class="secondary" disabled>Usar esta entrada</button>
+      <button id="stop" class="secondary" disabled>Parar</button>
+    </div>
+    <section class="meter-card" aria-label="Medidor do microfone">
+      <div class="meter-top"><span>Nível recebido pelo navegador</span><span id="levelText">Aguardando</span></div>
+      <div class="meter" role="meter" aria-label="Nível de áudio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="fill" class="meter-fill"></div></div>
+      <p id="hint" class="hint">Fale ou bata levemente perto do microfone. Se a barra mexer, o navegador está recebendo áudio.</p>
+    </section>
+    <p class="privacy">Privacidade: esta página só mede o volume localmente. Não grava, armazena nem envia o áudio. Use “Parar” ao terminar para fechar o microfone.</p>
+    <p class="small">Se o Direct Monitor funcionar, mas a barra não mexer, a Q12 pode estar tocando a voz pela saída sem ser reconhecida como entrada USB pelo Android/navegador.</p>
+  </main>
+  <script>
+    const statusBox = document.getElementById('status');
+    const inputs = document.getElementById('inputs');
+    const startButton = document.getElementById('start');
+    const applyButton = document.getElementById('apply');
+    const stopButton = document.getElementById('stop');
+    const fill = document.getElementById('fill');
+    const levelText = document.getElementById('levelText');
+    const hint = document.getElementById('hint');
+    const meter = document.querySelector('.meter');
+    let stream = null;
+    let context = null;
+    let analyser = null;
+    let frame = 0;
+
+    function showStatus(text, type='') {
+      statusBox.textContent = text;
+      statusBox.className = `notice ${type}`.trim();
+    }
+
+    async function refreshInputs(selectedId='') {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputs = devices.filter((device) => device.kind === 'audioinput');
+      inputs.replaceChildren();
+      if (!audioInputs.length) {
+        inputs.add(new Option('Nenhuma entrada de áudio listada', ''));
+        return;
+      }
+      audioInputs.forEach((device, index) => {
+        const label = device.label || `Entrada de áudio ${index + 1}`;
+        inputs.add(new Option(label, device.deviceId));
+      });
+      if (selectedId && audioInputs.some((device) => device.deviceId === selectedId)) inputs.value = selectedId;
+    }
+
+    function stopTest(updateMessage=true) {
+      cancelAnimationFrame(frame);
+      if (stream) stream.getTracks().forEach((track) => track.stop());
+      stream = null;
+      analyser = null;
+      if (context) context.close().catch(() => {});
+      context = null;
+      fill.style.width = '0%';
+      levelText.textContent = 'Parado';
+      meter.setAttribute('aria-valuenow', '0');
+      startButton.disabled = false;
+      applyButton.disabled = true;
+      stopButton.disabled = true;
+      if (updateMessage) showStatus('Microfone fechado. Toque em “Iniciar teste” para testar novamente.');
+    }
+
+    function animateMeter() {
+      if (!analyser) return;
+      const samples = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(samples);
+      let sum = 0;
+      let peak = 0;
+      for (const sample of samples) {
+        sum += sample * sample;
+        peak = Math.max(peak, Math.abs(sample));
+      }
+      const rms = Math.sqrt(sum / samples.length);
+      const db = 20 * Math.log10(Math.max(rms, 0.00001));
+      const percentage = Math.max(0, Math.min(100, ((db + 60) / 60) * 100));
+      fill.style.width = `${percentage}%`;
+      meter.setAttribute('aria-valuenow', String(Math.round(percentage)));
+      if (percentage < 4) {
+        levelText.textContent = 'Sem sinal';
+        hint.textContent = 'Ainda não chegou áudio. Fale perto do microfone e confirme se a Q12 aparece como entrada.';
+      } else if (peak > 0.95) {
+        levelText.textContent = 'Muito alto / saturando';
+        hint.textContent = 'O áudio chegou. Abaixe um pouco o ganho se a barra ficar no vermelho.';
+      } else {
+        levelText.textContent = `${Math.round(percentage)}% — sinal recebido`;
+        hint.textContent = 'A entrada está chegando ao navegador. Este teste não avalia afinação.';
+      }
+      frame = requestAnimationFrame(animateMeter);
+    }
+
+    async function startTest(deviceId='') {
+      if (!window.isSecureContext) {
+        showStatus('Esta página precisa abrir por HTTPS para liberar o microfone.', 'warn');
+        return;
+      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showStatus('Este navegador não oferece captura de microfone. Tente outro navegador ou aparelho.', 'warn');
+        return;
+      }
+      stopTest(false);
+      try {
+        const audio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+        if (deviceId) audio.deviceId = { exact: deviceId };
+        stream = await navigator.mediaDevices.getUserMedia({ audio, video: false });
+        const track = stream.getAudioTracks()[0];
+        const settings = track?.getSettings?.() || {};
+        context = new (window.AudioContext || window.webkitAudioContext)();
+        await context.resume();
+        const source = context.createMediaStreamSource(stream);
+        analyser = context.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        await refreshInputs(settings.deviceId || deviceId);
+        showStatus(`Microfone liberado${track?.label ? `: ${track.label}` : ''}. Fale para ver a barra.`, 'good');
+        startButton.disabled = true;
+        applyButton.disabled = !inputs.value;
+        stopButton.disabled = false;
+        levelText.textContent = 'Captando';
+        animateMeter();
+      } catch (error) {
+        stopTest(false);
+        const message = error?.name === 'NotAllowedError'
+          ? 'Permissão do microfone negada. Libere o microfone para este site nas configurações do navegador e tente de novo.'
+          : error?.name === 'NotFoundError'
+            ? 'Nenhum microfone foi encontrado. Confira o cabo USB, a alimentação da Q12 e a conexão do microfone.'
+            : `Não consegui abrir a entrada de áudio (${error?.name || 'erro'}). Tente a entrada padrão ou outro navegador.`;
+        showStatus(message, 'warn');
+      }
+    }
+
+    startButton.addEventListener('click', () => startTest(inputs.value));
+    applyButton.addEventListener('click', () => startTest(inputs.value));
+    stopButton.addEventListener('click', () => stopTest());
+    inputs.addEventListener('change', () => { applyButton.disabled = !inputs.value || !stream; });
+    window.addEventListener('pagehide', () => stopTest(false));
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      showStatus('Este navegador pode não permitir teste de microfone. A página precisa de HTTPS e suporte a getUserMedia.', 'warn');
+    }
+  </script>
+</body>
+</html>
