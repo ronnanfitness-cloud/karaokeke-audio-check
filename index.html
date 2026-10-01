@@ -4,186 +4,62 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#130e1b">
-  <meta name="description" content="Teste local da entrada de microfone USB no navegador. O áudio não é gravado nem enviado.">
+  <meta name="description" content="Teste local do áudio USB da TEYUN Q12 com vídeo do YouTube e medidores separados para as entradas 1 e 2.">
   <title>Teste de áudio USB — Karaokeke</title>
   <style>
-    :root{color-scheme:dark;--bg:#100d16;--panel:#211a2b;--line:#40334e;--pink:#ff5b9e;--text:#f8f3fc;--muted:#c2b8cb;--gold:#ffd479}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#302039 0,#100d16 62%);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif;display:grid;place-items:center;padding:20px}
-    main{width:min(100%,680px);border:1px solid var(--line);border-radius:22px;background:rgba(24,18,33,.94);box-shadow:0 24px 80px #0008;padding:clamp(20px,5vw,38px)}
-    .brand{font-weight:850;letter-spacing:-1px;font-size:17px}.brand span{color:var(--pink)}
-    h1{font-size:clamp(27px,6vw,42px);line-height:1.08;letter-spacing:-1.4px;margin:28px 0 10px}
-    p{line-height:1.55;color:var(--muted)}
-    .intro{margin:0 0 22px}
-    .notice{padding:13px 14px;border-radius:12px;background:#30263a;border:1px solid #50405e;color:#e9ddf2;font-size:14px;line-height:1.5;margin:16px 0}
-    .notice.warn{background:#3b2d1a;border-color:#70572d;color:#ffdfa1}
-    .notice.good{background:#173429;border-color:#2d624a;color:#c0f1d6}
-    label{display:block;font-size:13px;font-weight:700;margin:17px 0 8px}
-    select{width:100%;background:#110e17;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:14px;font-size:15px;min-height:48px}
-    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-    button{min-height:48px;border:0;border-radius:12px;padding:12px 18px;font-weight:750;font-size:15px;cursor:pointer}
-    button:disabled{opacity:.45;cursor:not-allowed}
-    .primary{background:var(--pink);color:#230b17;flex:1}
-    .secondary{background:#342a40;border:1px solid #51425f;color:var(--text)}
-    .meter-card{margin-top:22px;padding:18px;border:1px solid var(--line);border-radius:15px;background:#17121f}
-    .meter-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:11px;font-weight:700}
-    #levelText{font-variant-numeric:tabular-nums;color:var(--gold);font-size:14px}
-    .meter{height:24px;border-radius:999px;overflow:hidden;background:#09070e;border:1px solid #4b4056}
-    .meter-fill{height:100%;width:0;background:linear-gradient(90deg,#55d69e 0%,#ffe16b 72%,#ff5b5b 100%);transition:width .08s linear}
-    .hint{font-size:13px;margin:12px 0 0}
-    .privacy{border-top:1px solid var(--line);padding-top:15px;margin-top:22px;font-size:12px}
-    .small{font-size:12px;color:#a99db5}
-    @media(max-width:480px){body{padding:12px}main{border-radius:17px}.buttons{display:grid}.primary{width:100%}}
+    :root{color-scheme:dark;--bg:#100d16;--panel:#211a2b;--line:#40334e;--pink:#ff5b9e;--text:#f8f3fc;--muted:#c2b8cb;--gold:#ffd479;--green:#55d69e}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#302039 0,#100d16 62%);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif;padding:18px;display:grid;place-items:center}
+    main{width:min(100%,900px);border:1px solid var(--line);border-radius:22px;background:rgba(24,18,33,.96);box-shadow:0 24px 80px #0008;padding:clamp(18px,4vw,34px)}
+    .brand{font-weight:850;letter-spacing:-1px;font-size:17px}.brand span{color:var(--pink)}h1{font-size:clamp(27px,5vw,40px);line-height:1.08;letter-spacing:-1.2px;margin:18px 0 8px}p{line-height:1.5;color:var(--muted)}.intro{margin:0 0 16px}
+    .notice{padding:13px 14px;border-radius:12px;background:#30263a;border:1px solid #50405e;color:#e9ddf2;font-size:14px;line-height:1.5;margin:14px 0}.notice.warn{background:#3b2d1a;border-color:#70572d;color:#ffdfa1}.notice.good{background:#173429;border-color:#2d624a;color:#c0f1d6}
+    label{display:block;font-size:14px;font-weight:750;margin:17px 0 8px}input,select{width:100%;background:#110e17;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:13px;font-size:15px;min-height:48px}
+    .video-row{display:grid;grid-template-columns:1fr auto;gap:9px}.buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}button{min-height:48px;border:0;border-radius:12px;padding:12px 17px;font-weight:750;font-size:15px;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:var(--pink);color:#230b17;flex:1}.secondary{background:#342a40;border:1px solid #51425f;color:var(--text)}
+    .test-grid{display:grid;gap:18px}.video-shell{margin-top:12px;aspect-ratio:16/9;max-height:55vh;background:#08070b;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid;place-items:center}.video-shell iframe{width:100%;height:100%;border:0}.video-placeholder{padding:20px;text-align:center;color:var(--muted)}.video-help{font-size:13px;margin:8px 0 0}
+    .meter-card{margin-top:19px;padding:17px;border:1px solid var(--line);border-radius:15px;background:#17121f}.channels{display:grid;grid-template-columns:1fr 1fr;gap:12px}.channel{padding:14px;background:#211a2b;border:1px solid var(--line);border-radius:12px}.meter-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:750}.meter-text{font-variant-numeric:tabular-nums;color:var(--gold);font-size:13px;text-align:right}.meter{height:23px;border-radius:999px;overflow:hidden;background:#09070e;border:1px solid #4b4056}.meter-fill{height:100%;width:0;background:linear-gradient(90deg,#55d69e 0%,#ffe16b 72%,#ff5b5b 100%);transition:width .08s linear}.hint{font-size:13px;margin:11px 0 0}.privacy{border-top:1px solid var(--line);padding-top:14px;margin-top:20px;font-size:12px}.small{font-size:12px;color:#a99db5}.hidden{display:none!important}
+    @media(min-width:800px){.test-grid{grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);align-items:start}.video-shell{max-height:none}.channels{grid-template-columns:1fr}}
+    @media(max-width:620px){body{padding:10px}main{border-radius:17px}.video-row{grid-template-columns:1fr}.channels{grid-template-columns:1fr}.video-shell{max-height:none}.buttons{display:grid}.primary{width:100%}}
   </style>
 </head>
 <body>
-  <main>
-    <div class="brand">karaoke<span>ke</span> · diagnóstico USB</div>
-    <h1>Teste de entrada do microfone</h1>
-    <p class="intro">Veja se o navegador deste aparelho recebe o áudio da TEYUN Q12. Ative o Direct Monitor se quiser ouvir sua voz pela caixa; este teste mede a entrada USB separadamente.</p>
-    <div id="status" class="notice" role="status">Toque em “Iniciar teste” e permita o acesso ao microfone quando o navegador perguntar.</div>
-    <label for="inputs">Entrada de áudio</label>
+<main>
+  <div class="brand">karaoke<span>ke</span> · diagnóstico USB</div>
+  <h1>Teste YouTube + Q12</h1>
+  <p class="intro">O vídeo e os medidores ficam nesta mesma página para você não precisar alternar abas. O player é incorporado do YouTube.</p>
+  <div class="notice">Na Q12, para testar os canais separados: pressione <b>ST PAN 1L/2R</b> e deixe <b>REC em MIC</b> (não MIC+PC). Com essa configuração, Input 1 deve aparecer no canal esquerdo e Input 2 no direito.</div>
+  <div class="test-grid">
+  <section aria-label="Player do YouTube">
+    <label for="videoUrl">Link do YouTube ou ID do vídeo</label>
+    <div class="video-row"><input id="videoUrl" type="url" inputmode="url" placeholder="Cole o link ou ID de 11 caracteres"><button id="loadVideo" class="secondary">Carregar vídeo</button></div>
+    <p id="videoStatus" class="video-help">Carregue um vídeo que permita reprodução incorporada e toque em Play aqui.</p>
+    <div id="videoShell" class="video-shell"><div id="videoPlaceholder" class="video-placeholder">O vídeo aparecerá aqui. Depois de carregá-lo, use os controles do próprio player.</div></div>
+  </section>
+  <section aria-label="Teste das entradas USB">
+    <label for="inputs">Entrada de áudio USB</label>
     <select id="inputs" aria-label="Escolher entrada de áudio"><option value="">Entrada padrão do aparelho</option></select>
-    <div class="buttons">
-      <button id="start" class="primary">Iniciar teste</button>
-      <button id="apply" class="secondary" disabled>Usar esta entrada</button>
-      <button id="stop" class="secondary" disabled>Parar</button>
-    </div>
-    <section class="meter-card" aria-label="Medidor do microfone">
-      <div class="meter-top"><span>Nível recebido pelo navegador</span><span id="levelText">Aguardando</span></div>
-      <div class="meter" role="meter" aria-label="Nível de áudio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="fill" class="meter-fill"></div></div>
-      <p id="hint" class="hint">Fale ou bata levemente perto do microfone. Se a barra mexer, o navegador está recebendo áudio.</p>
-    </section>
-    <p class="privacy">Privacidade: esta página só mede o volume localmente. Não grava, armazena nem envia o áudio. Use “Parar” ao terminar para fechar o microfone.</p>
-    <p class="small">Se o Direct Monitor funcionar, mas a barra não mexer, a Q12 pode estar tocando a voz pela saída sem ser reconhecida como entrada USB pelo Android/navegador.</p>
-  </main>
-  <script>
-    const statusBox = document.getElementById('status');
-    const inputs = document.getElementById('inputs');
-    const startButton = document.getElementById('start');
-    const applyButton = document.getElementById('apply');
-    const stopButton = document.getElementById('stop');
-    const fill = document.getElementById('fill');
-    const levelText = document.getElementById('levelText');
-    const hint = document.getElementById('hint');
-    const meter = document.querySelector('.meter');
-    let stream = null;
-    let context = null;
-    let analyser = null;
-    let frame = 0;
-
-    function showStatus(text, type='') {
-      statusBox.textContent = text;
-      statusBox.className = `notice ${type}`.trim();
-    }
-
-    async function refreshInputs(selectedId='') {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const audioInputs = devices.filter((device) => device.kind === 'audioinput');
-      inputs.replaceChildren();
-      if (!audioInputs.length) {
-        inputs.add(new Option('Nenhuma entrada de áudio listada', ''));
-        return;
-      }
-      audioInputs.forEach((device, index) => {
-        const label = device.label || `Entrada de áudio ${index + 1}`;
-        inputs.add(new Option(label, device.deviceId));
-      });
-      if (selectedId && audioInputs.some((device) => device.deviceId === selectedId)) inputs.value = selectedId;
-    }
-
-    function stopTest(updateMessage=true) {
-      cancelAnimationFrame(frame);
-      if (stream) stream.getTracks().forEach((track) => track.stop());
-      stream = null;
-      analyser = null;
-      if (context) context.close().catch(() => {});
-      context = null;
-      fill.style.width = '0%';
-      levelText.textContent = 'Parado';
-      meter.setAttribute('aria-valuenow', '0');
-      startButton.disabled = false;
-      applyButton.disabled = true;
-      stopButton.disabled = true;
-      if (updateMessage) showStatus('Microfone fechado. Toque em “Iniciar teste” para testar novamente.');
-    }
-
-    function animateMeter() {
-      if (!analyser) return;
-      const samples = new Float32Array(analyser.fftSize);
-      analyser.getFloatTimeDomainData(samples);
-      let sum = 0;
-      let peak = 0;
-      for (const sample of samples) {
-        sum += sample * sample;
-        peak = Math.max(peak, Math.abs(sample));
-      }
-      const rms = Math.sqrt(sum / samples.length);
-      const db = 20 * Math.log10(Math.max(rms, 0.00001));
-      const percentage = Math.max(0, Math.min(100, ((db + 60) / 60) * 100));
-      fill.style.width = `${percentage}%`;
-      meter.setAttribute('aria-valuenow', String(Math.round(percentage)));
-      if (percentage < 4) {
-        levelText.textContent = 'Sem sinal';
-        hint.textContent = 'Ainda não chegou áudio. Fale perto do microfone e confirme se a Q12 aparece como entrada.';
-      } else if (peak > 0.95) {
-        levelText.textContent = 'Muito alto / saturando';
-        hint.textContent = 'O áudio chegou. Abaixe um pouco o ganho se a barra ficar no vermelho.';
-      } else {
-        levelText.textContent = `${Math.round(percentage)}% — sinal recebido`;
-        hint.textContent = 'A entrada está chegando ao navegador. Este teste não avalia afinação.';
-      }
-      frame = requestAnimationFrame(animateMeter);
-    }
-
-    async function startTest(deviceId='') {
-      if (!window.isSecureContext) {
-        showStatus('Esta página precisa abrir por HTTPS para liberar o microfone.', 'warn');
-        return;
-      }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showStatus('Este navegador não oferece captura de microfone. Tente outro navegador ou aparelho.', 'warn');
-        return;
-      }
-      stopTest(false);
-      try {
-        const audio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
-        if (deviceId) audio.deviceId = { exact: deviceId };
-        stream = await navigator.mediaDevices.getUserMedia({ audio, video: false });
-        const track = stream.getAudioTracks()[0];
-        const settings = track?.getSettings?.() || {};
-        context = new (window.AudioContext || window.webkitAudioContext)();
-        await context.resume();
-        const source = context.createMediaStreamSource(stream);
-        analyser = context.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
-        await refreshInputs(settings.deviceId || deviceId);
-        showStatus(`Microfone liberado${track?.label ? `: ${track.label}` : ''}. Fale para ver a barra.`, 'good');
-        startButton.disabled = true;
-        applyButton.disabled = !inputs.value;
-        stopButton.disabled = false;
-        levelText.textContent = 'Captando';
-        animateMeter();
-      } catch (error) {
-        stopTest(false);
-        const message = error?.name === 'NotAllowedError'
-          ? 'Permissão do microfone negada. Libere o microfone para este site nas configurações do navegador e tente de novo.'
-          : error?.name === 'NotFoundError'
-            ? 'Nenhum microfone foi encontrado. Confira o cabo USB, a alimentação da Q12 e a conexão do microfone.'
-            : `Não consegui abrir a entrada de áudio (${error?.name || 'erro'}). Tente a entrada padrão ou outro navegador.`;
-        showStatus(message, 'warn');
-      }
-    }
-
-    startButton.addEventListener('click', () => startTest(inputs.value));
-    applyButton.addEventListener('click', () => startTest(inputs.value));
-    stopButton.addEventListener('click', () => stopTest());
-    inputs.addEventListener('change', () => { applyButton.disabled = !inputs.value || !stream; });
-    window.addEventListener('pagehide', () => stopTest(false));
-    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
-      showStatus('Este navegador pode não permitir teste de microfone. A página precisa de HTTPS e suporte a getUserMedia.', 'warn');
-    }
-  </script>
+    <div class="buttons"><button id="start" class="primary">Iniciar teste do microfone</button><button id="apply" class="secondary" disabled>Usar esta entrada</button><button id="stop" class="secondary" disabled>Parar</button></div>
+    <div id="status" class="notice" role="status">Inicie o teste e permita o acesso ao microfone. Selecione USB Audio/Q12 quando aparecer na lista.</div>
+    <div class="meter-card"><div class="channels">
+      <div class="channel"><div class="meter-top"><span>Q12 Input 1 · L</span><span id="leftText" class="meter-text">Aguardando</span></div><div class="meter" id="leftMeter" role="meter" aria-label="Nível da Input 1, canal esquerdo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="leftFill" class="meter-fill"></div></div></div>
+      <div class="channel"><div class="meter-top"><span>Q12 Input 2 · R</span><span id="rightText" class="meter-text">Aguardando</span></div><div class="meter" id="rightMeter" role="meter" aria-label="Nível da Input 2, canal direito" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="rightFill" class="meter-fill"></div></div></div>
+    </div><p id="channelInfo" class="hint">Com ST PAN 1L/2R pressionado e REC em MIC: teste o microfone primeiro na Input 1 e depois na Input 2. A barra correspondente deve reagir.</p></div>
+  </section>
+  </div>
+  <p class="privacy">O microfone é medido localmente: esta página não grava, armazena nem envia a captação. O player incorporado é do YouTube e usa a conexão normal do YouTube. Use “Parar” para fechar o acesso ao microfone.</p>
+  <p class="small">Este teste mostra nível de sinal e canais recebidos; não analisa afinação nem dá nota vocal. Se o player disser que o vídeo não está disponível, escolha outro vídeo que permita incorporação.</p>
+</main>
+<script>
+const statusBox=document.getElementById('status'),inputs=document.getElementById('inputs'),startButton=document.getElementById('start'),applyButton=document.getElementById('apply'),stopButton=document.getElementById('stop');
+const leftFill=document.getElementById('leftFill'),rightFill=document.getElementById('rightFill'),leftText=document.getElementById('leftText'),rightText=document.getElementById('rightText'),leftMeter=document.getElementById('leftMeter'),rightMeter=document.getElementById('rightMeter'),channelInfo=document.getElementById('channelInfo');
+let stream=null,context=null,analysers=[],frame=0;
+function showStatus(text,type=''){statusBox.textContent=text;statusBox.className=`notice ${type}`.trim()}
+function videoIdFrom(value){const raw=value.trim();if(/^[A-Za-z0-9_-]{11}$/.test(raw))return raw;try{const url=new URL(raw);let id=url.searchParams.get('v');if(!id&&url.hostname.toLowerCase().includes('youtu.be'))id=url.pathname.split('/').filter(Boolean)[0];if(!id){const match=url.pathname.match(/\/(?:embed|shorts|live)\/([A-Za-z0-9_-]{11})/);if(match)id=match[1]}return id&&/^[A-Za-z0-9_-]{11}$/.test(id)?id:null}catch{return null}}
+document.getElementById('loadVideo').addEventListener('click',()=>{const id=videoIdFrom(document.getElementById('videoUrl').value),videoStatus=document.getElementById('videoStatus'),shell=document.getElementById('videoShell');if(!id){videoStatus.textContent='Não reconheci o link/ID. Cole um link youtube.com/watch?v=… ou youtu.be/…';return}const frameEl=document.createElement('iframe');frameEl.src=`https://www.youtube.com/embed/${encodeURIComponent(id)}?playsinline=1&rel=0&autoplay=0`;frameEl.title='Player de vídeo do YouTube';frameEl.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frameEl.referrerPolicy='strict-origin-when-cross-origin';frameEl.allowFullscreen=true;shell.replaceChildren(frameEl);videoStatus.textContent='Vídeo carregado. Aperte Play no player; os medidores continuam nesta página.'});
+async function refreshInputs(preferredId=''){const devices=await navigator.mediaDevices.enumerateDevices(),audioInputs=devices.filter(device=>device.kind==='audioinput');inputs.replaceChildren();if(!audioInputs.length){inputs.add(new Option('Nenhuma entrada de áudio listada',''));return}audioInputs.forEach((device,index)=>inputs.add(new Option(device.label||`Entrada de áudio ${index+1}`,device.deviceId)));if(preferredId&&audioInputs.some(device=>device.deviceId===preferredId))inputs.value=preferredId}
+function setMeter(analyser,fill,text,meter){const samples=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(samples);let sum=0,peak=0;for(const sample of samples){sum+=sample*sample;peak=Math.max(peak,Math.abs(sample))}const rms=Math.sqrt(sum/samples.length),db=20*Math.log10(Math.max(rms,0.00001)),percentage=Math.max(0,Math.min(100,((db+60)/60)*100));fill.style.width=`${percentage}%`;meter.setAttribute('aria-valuenow',String(Math.round(percentage)));text.textContent=percentage<4?'Sem sinal':peak>0.95?`${Math.round(percentage)}% · alto`:`${Math.round(percentage)}% · sinal`}
+function animateMeters(){if(analysers.length<2)return;setMeter(analysers[0],leftFill,leftText,leftMeter);setMeter(analysers[1],rightFill,rightText,rightMeter);frame=requestAnimationFrame(animateMeters)}
+function stopTest(updateMessage=true){cancelAnimationFrame(frame);if(stream)stream.getTracks().forEach(track=>track.stop());stream=null;analysers=[];if(context)context.close().catch(()=>{});context=null;leftFill.style.width='0%';rightFill.style.width='0%';leftText.textContent='Parado';rightText.textContent='Parado';leftMeter.setAttribute('aria-valuenow','0');rightMeter.setAttribute('aria-valuenow','0');startButton.disabled=false;applyButton.disabled=true;stopButton.disabled=true;if(updateMessage)showStatus('Microfone fechado. Toque em “Iniciar teste do microfone” para testar novamente.')}
+async function startTest(deviceId=''){if(!window.isSecureContext){showStatus('Esta página precisa abrir por HTTPS para liberar o microfone.','warn');return}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showStatus('Este navegador não oferece captura de microfone. Tente outro navegador ou aparelho.','warn');return}stopTest(false);try{const audio={channelCount:{ideal:2},echoCancellation:false,noiseSuppression:false,autoGainControl:false};if(deviceId)audio.deviceId={exact:deviceId};stream=await navigator.mediaDevices.getUserMedia({audio,video:false});const track=stream.getAudioTracks()[0],settings=track?.getSettings?.()||{};context=new(window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});await context.resume();const source=context.createMediaStreamSource(stream),splitter=context.createChannelSplitter(2),left=context.createAnalyser(),right=context.createAnalyser();left.fftSize=1024;right.fftSize=1024;const silent=context.createGain();silent.gain.value=0;source.connect(splitter);splitter.connect(left,0);splitter.connect(right,1);left.connect(silent);right.connect(silent);silent.connect(context.destination);analysers=[left,right];await refreshInputs(settings.deviceId||deviceId);const channelCount=settings.channelCount||'não informado';showStatus(`Entrada ativa: ${track?.label||'USB selecionado'}. O navegador informa ${channelCount} canal(is).`,'good');channelInfo.textContent=`O navegador informa ${channelCount} canal(is). Com ST PAN 1L/2R e REC em MIC, teste a Input 1 e a Input 2 separadamente.`;startButton.disabled=true;applyButton.disabled=!inputs.value;stopButton.disabled=false;leftText.textContent='Captando';rightText.textContent='Captando';animateMeters()}catch(error){stopTest(false);const message=error?.name==='NotAllowedError'?'Permissão do microfone negada. Libere o microfone para este site e tente novamente.':error?.name==='NotFoundError'?'Nenhuma entrada de áudio encontrada. Confira USB, Q12 e microfone.':`Não consegui abrir a entrada de áudio (${error?.name||'erro'}). Tente USB Audio ou Entrada padrão.`;showStatus(message,'warn')}}
+startButton.addEventListener('click',()=>startTest(inputs.value));applyButton.addEventListener('click',()=>startTest(inputs.value));stopButton.addEventListener('click',()=>stopTest());inputs.addEventListener('change',()=>{applyButton.disabled=!inputs.value||!stream});window.addEventListener('pagehide',()=>stopTest(false));if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia)showStatus('Este navegador precisa de HTTPS e suporte a getUserMedia para testar o microfone.','warn');
+</script>
 </body>
 </html>
